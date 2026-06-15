@@ -433,6 +433,7 @@ function renderProfile() {
   const cats = new Set(items.map(i => i.category));
   document.getElementById("profileCategories").textContent = cats.size;
 
+  renderWardrobeSwitcher();
   // Category bars
   const counts = {};
   items.forEach(i => { const c = i.category || "other"; counts[c] = (counts[c]||0) + 1; });
@@ -881,6 +882,7 @@ function showStats() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
 
 
 
