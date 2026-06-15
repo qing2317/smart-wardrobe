@@ -163,7 +163,6 @@ function getFilteredItems() {
 function renderWardrobe() {
   const filtered = getFilteredItems();
   const grid = document.getElementById("itemsGrid");
-  const empty = document.getElementById("emptyState");
   const count = document.getElementById("itemCount");
   const total = document.getElementById("totalValue");
 
@@ -173,11 +172,9 @@ function renderWardrobe() {
 
   if (filtered.length === 0) {
     grid.classList.add("hidden");
-    empty.classList.add("hidden");
     return;
   }
   grid.classList.remove("hidden");
-  empty.classList.add("hidden");
   grid.innerHTML = "";
   filtered.forEach(item => grid.appendChild(createItemCard(item)));
 }
@@ -884,6 +881,7 @@ function showStats() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
 
 
 
