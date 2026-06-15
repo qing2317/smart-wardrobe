@@ -846,7 +846,7 @@ function showStats() {
   const m = document.createElement("div"); m.id = "statsModal";
   m.className = "modal";
   m.innerHTML = `<div class="modal-content">
-    <div class="modal-header"><h2>?? 衣橱统计</h2>
+    <div class="modal-header"><h2>衣橱统计</h2>
       <button id="closeStatsBtn" class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="recommend-list">
