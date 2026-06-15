@@ -784,3 +784,29 @@ body {
 
 
 
+
+/* ===== Micro Sizing ===== */
+.profile-actions .btn-secondary {
+  padding: 8px 14px; font-size: 13px;
+}
+.profile-actions .btn-secondary svg {
+  width: 15px; height: 15px;
+}
+#addWardrobeBtn.btn-secondary.btn-sm.btn-block {
+  padding: 6px 12px; font-size: 12px;
+}
+#addWardrobeBtn.btn-secondary.btn-sm.btn-block svg {
+  width: 14px; height: 14px;
+}
+.search-icon {
+  width: 16px !important; height: 16px !important;
+}
+.search-input-wrapper input {
+  font-size: 13px !important;
+}
+.icon-btn.small {
+  width: 26px !important; height: 26px !important;
+}
+.icon-btn.small svg {
+  width: 14px !important; height: 14px !important;
+}
