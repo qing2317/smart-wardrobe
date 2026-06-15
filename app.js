@@ -8,9 +8,9 @@ const SEASONS = { all:"全年", spring:"春", summer:"夏", autumn:"秋", winter
 const SEASON_ICON = { all:"", spring:"🌸", summer:"☀️", autumn:"🍂", winter:"❄️" };
 const OCCASIONS = ["日常","通勤","运动","约会","聚会","旅行","其他"];
 
-const DB_NAME = "SmartWardrobeDB", DB_VER = 1, STORE_ITEMS = "items", STORE_OUTFITS = "outfits";
+const DB_NAME = "SmartWardrobeDB", DB_VER = 1, STORE_ITEMS = "items", STORE_OUTFITS = "outfits", STORE_WARDROBES = "wardrobes";
 
-let state = {
+let state = { wardrobes: [], selectedWardrobeId: null,
   items: [], outfits: [], currentTab: "wardrobe",
   catFilter: "all", seasonFilter: "all", searchQuery: "",
   editingId: null
@@ -144,7 +144,7 @@ async function deleteItem(id) {
 
 // ===== Wardrobe: Render =====
 function getFilteredItems() {
-  let items = [...state.items];
+  if (state.selectedWardrobeId) return state.items.filter(i => i.wardrobeId === state.selectedWardrobeId || !i.wardrobeId);
   if (state.catFilter !== "all") items = items.filter(i => i.category === state.catFilter);
   if (state.seasonFilter !== "all") items = items.filter(i => i.season === state.seasonFilter || i.season === "all");
   if (state.searchQuery) {
@@ -667,10 +667,53 @@ function init() {
     } catch { showToast("拍照失败", "error"); }
     e.target.value = "";
   });
+  // Wardrobe
+  document.getElementById("wardrobeToggle").addEventListener("click", () => {
+    document.getElementById("wardrobeDropdown").classList.toggle("hidden");
+    document.getElementById("wardrobeToggle").classList.toggle("open");
+    renderWardrobeSwitcher();
+  });
+  document.getElementById("wardrobeManageBtn").addEventListener("click", () => {
+    document.getElementById("wardrobeDropdown").classList.add("hidden");
+    document.getElementById("wardrobeToggle").classList.remove("open");
+    switchTab("profile");
+  });
+  document.getElementById("addWardrobeBtn").addEventListener("click", showCreateWardrobeForm);
+  document.addEventListener("click", (e) => {
+    if (!document.querySelector(".wardrobe-bar")?.contains(e.target)) {
+      document.getElementById("wardrobeDropdown").classList.add("hidden");
+      document.getElementById("wardrobeToggle").classList.remove("open");
+    }
+  });
+  document.getElementById("avatarContainer").addEventListener("click", () => document.getElementById("avatarGalleryInput").click());
+  document.getElementById("avatarGalleryInput").addEventListener("change", async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    try {
+      const url = await readFileAsDataURL(file);
+      const compressed = await compressImage(url, 400);
+      const prof = loadProfile(); prof.avatar = compressed; saveProfile(prof);
+      renderProfile(); showToast("头像已更新", "success");
+    } catch { showToast("头像加载失败", "error"); }
+    e.target.value = "";
+  });
+  document.getElementById("editNameBtn").addEventListener("click", () => {
+    const prof = loadProfile();
+    const n = prompt("设置昵称：", prof.name);
+    if (n && n.trim()) { prof.name = n.trim(); saveProfile(prof); renderProfile(); showToast("昵称已更新", "success"); }
+  });
+  document.getElementById("avatarCameraInput").addEventListener("change", async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    try {
+      const url = await readFileAsDataURL(file);
+      const compressed = await compressImage(url, 400);
+      const prof = loadProfile(); prof.avatar = compressed; saveProfile(prof);
+      renderProfile(); showToast("头像已更新", "success");
+    } catch { showToast("拍照失败", "error"); }
+    e.target.value = "";
+  });
 
   // Init data
-  loadItems();
-  loadOutfits();
+  loadWardrobes().then(() => { loadItems(); loadOutfits(); });
 }
 
 // ===== Statistics =====
@@ -682,6 +725,93 @@ function loadProfile() {
 }
 function saveProfile(data) {
   localStorage.setItem("sw_profile", JSON.stringify(data));
+}
+
+
+// ===== Wardrobes =====
+async function loadWardrobes() {
+  try { state.wardrobes = await dbGetAll(STORE_WARDROBES); }
+  catch(e) { state.wardrobes = []; }
+  if (state.wardrobes.length === 0) {
+    const def = { id:"w_default", name:"我的衣橱", createdAt:Date.now() };
+    await dbPut(STORE_WARDROBES, def);
+    state.wardrobes = [def];
+  }
+  if (!state.selectedWardrobeId || !state.wardrobes.find(w=>w.id===state.selectedWardrobeId)) {
+    state.selectedWardrobeId = state.wardrobes[0].id;
+  }
+  for (const item of state.items) {
+    if (!item.wardrobeId) { item.wardrobeId = state.selectedWardrobeId; await dbPut(STORE_ITEMS, item); }
+  }
+  renderWardrobeSwitcher();
+  renderWardrobeManager();
+}
+function renderWardrobeSwitcher() {
+  const nameEl = document.getElementById("currentWardrobeName");
+  const list = document.getElementById("wardrobeList");
+  if (nameEl) { const w = state.wardrobes.find(x => x.id === state.selectedWardrobeId);
+    nameEl.textContent = w ? w.name : "我的衣橱"; }
+  if (!list) return;
+  list.innerHTML = state.wardrobes.map(w => {
+    const cnt = state.items.filter(i => i.wardrobeId === w.id).length;
+    return "<button class=\"wardrobe-option " + (w.id === state.selectedWardrobeId ? "active" : "") + "\" data-wid=\"" + w.id + "\"><span>" + w.name + " <span class=\"w-count\">" + cnt + "件</span></span>" + (state.wardrobes.length > 1 ? "<span class=\"w-del\" data-del=\"" + w.id + "\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"/><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"/></svg></span>" : "") + "</button>";
+  }).join("");
+  list.querySelectorAll(".wardrobe-option").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      if (e.target.closest(".w-del")) return;
+      state.selectedWardrobeId = btn.dataset.wid;
+      document.getElementById("wardrobeDropdown").classList.add("hidden");
+      document.getElementById("wardrobeToggle").classList.remove("open");
+      renderWardrobeSwitcher(); loadItems();
+    });
+  });
+  list.querySelectorAll(".w-del").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const wid = btn.dataset.del;
+      showConfirm("删除衣柜", (state.wardrobes.find(x=>x.id===wid)||{}).name + "及其衣物将被删除", async () => {
+        for (const item of state.items.filter(i=>i.wardrobeId===wid)) await dbDelete(STORE_ITEMS, item.id);
+        await dbDelete(STORE_WARDROBES, wid);
+        await loadWardrobes(); await loadItems(); switchTab("wardrobe");
+      });
+    });
+  });
+}
+function renderWardrobeManager() {
+  const container = document.getElementById("wardrobeManager");
+  if (!container) return;
+  container.innerHTML = state.wardrobes.map(w => {
+    const cnt = state.items.filter(i => i.wardrobeId === w.id).length;
+    return "<div class=\"wardrobe-mgmt-card\"><span class=\"wardrobe-mgmt-name\">" + w.name + "</span><span class=\"wardrobe-mgmt-count\">" + cnt + "件</span><button class=\"wardrobe-mgmt-rename\" data-rename=\"" + w.id + "\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"/></svg></button>" + (state.wardrobes.length > 1 ? "<button class=\"wardrobe-mgmt-del\" data-del=\"" + w.id + "\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"3 6 5 6 21 6\"/><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/></svg></button>" : "") + "</div>";
+  }).join("");
+  container.querySelectorAll("[data-rename]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const w = state.wardrobes.find(x => x.id === btn.dataset.rename);
+      const n = prompt("重命名：", w ? w.name : "");
+      if (n && n.trim() && n.trim() !== w.name) { w.name = n.trim(); dbPut(STORE_WARDROBES, w).then(loadWardrobes); }
+    });
+  });
+  container.querySelectorAll("[data-del]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const wid = btn.dataset.del;
+      showConfirm("删除衣柜", (state.wardrobes.find(x=>x.id===wid)||{}).name + "及其衣物将被删除", async () => {
+        for (const item of state.items.filter(i=>i.wardrobeId===wid)) await dbDelete(STORE_ITEMS, item.id);
+        await dbDelete(STORE_WARDROBES, wid);
+        await loadWardrobes(); await loadItems();
+      });
+    });
+  });
+}
+function showCreateWardrobeForm() {
+  const n = prompt("新衣柜名称：", "新衣柜");
+  if (n && n.trim()) {
+    const w = { id:"w_" + Date.now(), name:n.trim(), createdAt:Date.now() };
+    dbPut(STORE_WARDROBES, w).then(async () => {
+      state.selectedWardrobeId = w.id;
+      await loadWardrobes(); renderWardrobeSwitcher();
+      switchTab("wardrobe"); showToast("已创建", "success");
+    });
+  }
 }
 
 function showStats() {
