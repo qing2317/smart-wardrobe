@@ -642,6 +642,11 @@ function init() {
 }
 
 // ===== Statistics =====
+function loadProfile() {
+  try { return JSON.parse(localStorage.getItem('sw_profile')) || { name:'我的衣橱', avatar:'' }; }
+  catch(e) { return { name:'我的衣橱', avatar:'' }; }
+}
+
 function showStats() {
   const items = state.items;
   const total = items.length;
