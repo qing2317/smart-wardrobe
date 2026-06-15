@@ -186,7 +186,7 @@ ${1 flex: 1; position: relative; z-index: 45; }
 /* ===== Items Grid ===== */
 .items-grid {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
-  background: var(--separator); padding: 0;
+  background: var(--separator); padding: 0 2px;
 }
 @media(min-width:600px){ .items-grid { grid-template-columns: repeat(3, 1fr); } }
 .items-grid.hidden { display: none; }
@@ -486,6 +486,7 @@ body::before {
   .items-grid { grid-template-columns: repeat(3, 1fr); gap: 1px; }
   .header-inner { padding: 64px 24px 6px; }
 }
+
 
 
 
