@@ -43,7 +43,7 @@ jobs:
         run: |
           mkdir -p android-app
           cd android-app
-          npx --yes @bubblewrap/cli init \
+          echo "n" | npx --yes @bubblewrap/cli init \
             --manifest https://qing2317.github.io/smart-wardrobe/manifest.json \
             --jks ../app.keystore \
             --key app \
@@ -62,3 +62,4 @@ jobs:
         with:
           name: smart-wardrobe-apk
           path: android-app/app/build/outputs/apk/release/*.apk
+
