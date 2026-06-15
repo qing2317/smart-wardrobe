@@ -3,191 +3,294 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#1a1a2e">
-  <meta name="description" content="智能衣橱 - 管理你的个人衣物">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="智能衣橱 - 管理衣物、搭配推荐">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231a1a2e'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle' fill='white'%3E%F0%9F%91%94%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
   <title>智能衣橱</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="app">
-    <!-- Header -->
+    <!-- ===== 顶部导航 ===== -->
     <header class="app-header">
-      <div class="header-top">
-        <h1 class="app-title">
-          <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          智能衣橱
-        </h1>
-        <div class="header-actions">
-          <button id="searchToggle" class="icon-btn" aria-label="搜索" title="搜索">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <div class="header-inner">
+        <h1 class="app-title">智能衣橱</h1>
+        <div id="headerActions" class="header-actions">
+          <button id="headerSearchBtn" class="icon-btn" aria-label="搜索">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </button>
-          <button id="addItemBtn" class="btn-primary">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            添加衣物
+        </div>
+      <div class="wardrobe-bar">
+        <button id="wardrobeToggle" class="wardrobe-btn">
+          <span id="currentWardrobeName">我的衣橱</span>
+          <svg class="wardrobe-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div id="wardrobeDropdown" class="wardrobe-dropdown hidden">
+          <div id="wardrobeList" class="wardrobe-list"></div>
+          <button id="wardrobeManageBtn" class="wardrobe-manage-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            管理衣柜
           </button>
         </div>
       </div>
+      </div>
       <div id="searchBar" class="search-bar hidden">
         <div class="search-input-wrapper">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="searchInput" placeholder="搜索衣物名称、品牌..." autocomplete="off">
-          <button id="searchClear" class="icon-btn small hidden" aria-label="清除搜索">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="搜索衣物、品牌..." autocomplete="off">
+          <button id="searchClear" class="icon-btn small hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
       </div>
     </header>
 
-    <div id="statsBar" class="stats-bar">
-      <span id="itemCount">共 0 件单品</span>
-      <span id="totalValue" class="total-value">总价值: ¥0</span>
-    </div>
+    <!-- ===== 主内容区 ===== -->
+    <main id="mainContent" class="main-content">
 
-    <section class="filters-section">
-      <div class="filter-chips" id="categoryFilters">
-        <button class="chip active" data-category="all">全部</button>
-        <button class="chip" data-category="tops">上衣</button>
-        <button class="chip" data-category="bottoms">下装</button>
-        <button class="chip" data-category="shoes">鞋子</button>
-        <button class="chip" data-category="outerwear">外套</button>
-        <button class="chip" data-category="dresses">连衣裙</button>
-        <button class="chip" data-category="accessories">配饰</button>
-      </div>
-      <div class="filter-chips season-chips" id="seasonFilters">
-        <button class="chip active" data-season="all">全年</button>
-        <button class="chip" data-season="spring">春</button>
-        <button class="chip" data-season="summer">夏</button>
-        <button class="chip" data-season="autumn">秋</button>
-        <button class="chip" data-season="winter">冬</button>
-      </div>
-    </section>
-
-    <div class="sort-bar">
-      <button id="sortToggle" class="sort-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M11 5h10"/><path d="M11 9h7"/><path d="M11 13h4"/><path d="m3 17 3 3 3-3"/><path d="M6 20V4"/></svg>
-        最新添加
-        <svg class="sort-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div id="sortMenu" class="sort-menu hidden">
-        <button class="sort-option active" data-sort="newest">最新添加</button>
-        <button class="sort-option" data-sort="oldest">最早添加</button>
-        <button class="sort-option" data-sort="name">名称 A-Z</button>
-        <button class="sort-option" data-sort="price_high">价格从高到低</button>
-        <button class="sort-option" data-sort="price_low">价格从低到高</button>
-      </div>
-      <button id="statsToggle" class="icon-btn" aria-label="统计" title="统计概览">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-      </button>
-    </div>
-
-    <main id="mainContent">
-      <div id="emptyState" class="empty-state">
-        <div class="empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <!-- ====== Tab: 衣橱 ====== -->
+      <section id="tabWardrobe" class="tab-content active">
+        <div class="wardrobe-toolbar">
+          <div class="stats-row">
+            <span id="itemCount">共 0 件</span>
+            <span id="totalValue">总价值 ¥0</span>
+          </div>
+          <div class="filter-chips" id="categoryFilters">
+            <button class="chip active" data-cat="all">全部</button>
+            <button class="chip" data-cat="tops">上衣</button>
+            <button class="chip" data-cat="bottoms">下装</button>
+            <button class="chip" data-cat="shoes">鞋子</button>
+            <button class="chip" data-cat="outerwear">外套</button>
+            <button class="chip" data-cat="dresses">连衣裙</button>
+            <button class="chip" data-cat="accessories">配饰</button>
+          </div>
+          <div class="filter-chips season-chips" id="seasonFilters">
+            <button class="chip active" data-season="all">全年</button>
+            <button class="chip" data-season="spring">春</button>
+            <button class="chip" data-season="summer">夏</button>
+            <button class="chip" data-season="autumn">秋</button>
+            <button class="chip" data-season="winter">冬</button>
+          </div>
         </div>
-        <h2>衣橱还是空的</h2>
-        <p>点击下方按钮，添加你的第一件衣物吧</p>
-        <button id="emptyAddBtn" class="btn-primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          添加衣物
-        </button>
-      </div>
-      <div id="itemsGrid" class="items-grid hidden"></div>
+        <div id="wardrobeContent" class="wardrobe-content">
+          <div id="emptyState" class="empty-state">
+            <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+            <h2>衣橱还是空的</h2>
+            <p>快去「我的」页面添加衣物吧</p>
+          </div>
+          <div id="itemsGrid" class="items-grid hidden"></div>
+        </div>
+      </section>
+
+      <!-- ====== Tab: 搭配 ====== -->
+      <section id="tabOutfits" class="tab-content">
+        <div class="outfits-header">
+          <div id="weatherCard" class="weather-card">
+            <div class="weather-loading">加载天气...</div>
+          </div>
+          <button id="aiRecommendBtn" class="btn-primary btn-block">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/><path d="M16 14H8"/><path d="M16 18H8"/><path d="M20 10v4a8 8 0 0 1-16 0v-4"/></svg>
+            AI 智能推荐搭配
+          </button>
+        </div>
+        <div id="outfitsContent" class="outfits-content">
+          <div id="outfitsEmpty" class="empty-state">
+            <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+            <h2>还没有搭配</h2>
+            <p>点击上方按钮生成推荐搭配</p>
+          </div>
+          <div id="outfitsGrid" class="outfits-grid hidden">
+            <h3 class="section-title">我的搭配</h3>
+            <div id="outfitsList" class="outfits-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== Tab: 我的 ====== -->
+      <section id="tabProfile" class="tab-content">
+        <div class="profile-header">
+          <div class="profile-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <h2>我的衣橱</h2>
+          <p class="profile-subtitle">智能管理你的个人衣物</p>
+        </div>
+        <div class="profile-stats-grid">
+          <div class="profile-stat-card">
+            <span class="ps-number" id="profileTotal">0</span>
+            <span class="ps-label">总件数</span>
+          </div>
+          <div class="profile-stat-card">
+            <span class="ps-number" id="profileValue">¥0</span>
+            <span class="ps-label">总价值</span>
+          </div>
+          <div class="profile-stat-card">
+            <span class="ps-number" id="profileOutfits">0</span>
+            <span class="ps-label">搭配数</span>
+          </div>
+          <div class="profile-stat-card">
+            <span class="ps-number" id="profileCategories">0</span>
+            <span class="ps-label">分类数</span>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button id="profileAddBtn" class="btn-primary btn-block btn-lg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            添加新衣物
+          </button>
+          <button id="profileStatsBtn" class="btn-secondary btn-block">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            查看详细统计
+          </button>
+        </div>
+        <div class="profile-section">
+          <h3>分类分布</h3>
+          <div id="profileCategoryBars" class="mini-bars"></div>
+        </div>
+        <div class="profile-section">
+          <h3>我的衣柜</h3>
+          <div id="wardrobeManager" class="wardrobe-manager"></div>
+          <button id="addWardrobeBtn" class="btn-secondary btn-sm btn-block" style="margin-top:8px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            新建衣柜
+          </button>
+        </div>
     </main>
 
-    <button id="fabAddBtn" class="fab" aria-label="添加衣物">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </button>
+    <!-- ===== 底栏导航 ===== -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="wardrobe">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>衣橱</span>
+      </button>
+      <button class="nav-item" data-tab="outfits">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>搭配</span>
+      </button>
+      <button class="nav-item" data-tab="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </button>
+    </nav>
   </div>
 
+  <!-- ===== 弹窗 ===== -->
   <div id="modalBackdrop" class="modal-backdrop hidden"></div>
 
-  <!-- Add/Edit Item Modal -->
+  <!-- 添加/编辑衣物 -->
   <div id="itemFormModal" class="modal hidden">
     <div class="modal-content">
       <div class="modal-header">
         <h2 id="modalTitle">添加衣物</h2>
-        <button id="closeFormModal" class="icon-btn" aria-label="关闭">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+        <button id="closeFormModal" class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
-      <form id="itemForm" class="item-form">
+      <form id="itemForm">
         <input type="hidden" id="itemId">
         <div class="form-group image-upload-group">
           <div id="imagePreview" class="image-preview">
             <div class="image-placeholder">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               <span>点击上传图片</span>
             </div>
           </div>
-          <input type="file" id="imageInput" accept="image/*" capture="environment" hidden>
+          <div class="image-source-row">
+            <button type="button" id="cameraBtn" class="btn-secondary btn-sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              拍照
+            </button>
+            <button type="button" id="galleryBtn" class="btn-secondary btn-sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              从相册选择
+            </button>
+          </div>
+          <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+          <input type="file" id="galleryInput" accept="image/*" hidden>
+          <input type="file" id="imageInput" accept="image/*" hidden>
           <div id="imageActions" class="image-actions hidden">
-            <button type="button" id="changeImageBtn" class="btn-secondary btn-sm">更换图片</button>
-            <button type="button" id="removeImageBtn" class="btn-danger btn-sm">移除</button>
+            <button type="button" id="changeImageBtn" class="btn-secondary btn-sm">更换</button>
+            <button type="button" id="removeImageBtn" class="btn-ghost btn-sm">移除</button>
           </div>
         </div>
-
         <div class="form-row">
           <div class="form-group">
-            <label for="itemName">名称 *</label>
-            <input type="text" id="itemName" placeholder="例如：白色棉质T恤" required>
+            <label>名称 *</label>
+            <input type="text" id="itemName" placeholder="白色棉质T恤" required>
           </div>
           <div class="form-group">
-            <label for="itemCategory">分类 *</label>
-            <select id="itemCategory" required>
-              <option value="">请选择</option>
-              <option value="tops">上衣</option>
-              <option value="bottoms">下装</option>
-              <option value="shoes">鞋子</option>
-              <option value="outerwear">外套</option>
-              <option value="dresses">连衣裙</option>
-              <option value="accessories">配饰</option>
+            <label>分类 *</label>
+            <select id="itemCategory" required><option value="">选择</option>
+              <option value="tops">上衣</option><option value="bottoms">下装</option>
+              <option value="shoes">鞋子</option><option value="outerwear">外套</option>
+              <option value="dresses">连衣裙</option><option value="accessories">配饰</option>
             </select>
           </div>
         </div>
-
         <div class="form-row">
           <div class="form-group">
-            <label for="itemBrand">品牌</label>
-            <input type="text" id="itemBrand" placeholder="例如：Nike, Uniqlo">
+            <label>品牌</label>
+            <input type="text" id="itemBrand" placeholder="Nike, Uniqlo...">
           </div>
           <div class="form-group">
-            <label for="itemPrice">价格 (¥)</label>
+            <label>价格 (¥)</label>
             <input type="number" id="itemPrice" min="0" step="0.01" placeholder="0.00">
           </div>
         </div>
-
         <div class="form-row">
           <div class="form-group">
-            <label for="itemSeason">适用季节</label>
-            <select id="itemSeason">
-              <option value="all">全年通用</option>
-              <option value="spring">春季</option>
-              <option value="summer">夏季</option>
-              <option value="autumn">秋季</option>
-              <option value="winter">冬季</option>
+            <label>季节</label>
+            <select id="itemSeason"><option value="all">全年</option>
+              <option value="spring">春季</option><option value="summer">夏季</option>
+              <option value="autumn">秋季</option><option value="winter">冬季</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="itemColor">颜色</label>
-            <div class="color-input-wrapper">
+            <label>颜色</label>
+            <div class="color-input-row">
               <input type="color" id="itemColor" value="#808080">
               <input type="text" id="itemColorText" placeholder="颜色名称" maxlength="20">
             </div>
           </div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label>尺码</label>
+          <select id="itemSize">
+            <option value="">不选择</option>
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+            <option value="XXXL">XXXL</option>
+            <option value="28">28</option>
+            <option value="29">29</option>
+            <option value="30">30</option>
+            <option value="31">31</option>
+            <option value="32">32</option>
+            <option value="33">33</option>
+            <option value="34">34</option>
+            <option value="35">35</option>
+            <option value="36">36</option>
+            <option value="37">37</option>
+            <option value="38">38</option>
+            <option value="39">39</option>
+            <option value="40">40</option>
+            <option value="41">41</option>
+            <option value="42">42</option>
+            <option value="43">43</option>
+            <option value="44">44</option>
+            <option value="45">45</option>
+            <option value="均码">均码</option>
+            <option value="其他">其他</option>
+          </select>
         </div>
-
+        </div>
         <div class="form-group">
-          <label for="itemNotes">备注</label>
-          <textarea id="itemNotes" rows="3" placeholder="材质、购买地点、搭配建议等..."></textarea>
+          <label>备注</label>
+          <textarea id="itemNotes" rows="3" placeholder="材质、购买地点、搭配建议..."></textarea>
         </div>
-
         <div class="form-actions">
-          <button type="button" id="cancelFormBtn" class="btn-secondary">取消</button>
-          <button type="submit" id="saveItemBtn" class="btn-primary">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <button type="button" id="cancelFormBtn" class="btn-ghost">取消</button>
+          <button type="submit" class="btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
             保存
           </button>
         </div>
@@ -195,127 +298,39 @@
     </div>
   </div>
 
-  <!-- Item Detail Modal -->
-  <div id="itemDetailModal" class="modal hidden">
+  <!-- 衣物详情 -->
+  <div id="detailModal" class="modal hidden">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 id="detailTitle">衣物详情</h2>
-        <button id="closeDetailModal" class="icon-btn" aria-label="关闭">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+        <h2>衣物详情</h2>
+        <button id="closeDetailModal" class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
-      <div id="detailContent" class="detail-content">
-        <div class="detail-image">
-          <img id="detailImage" src="" alt="">
-        </div>
-        <div class="detail-info">
-          <div class="detail-field">
-            <span class="detail-label">名称</span>
-            <span id="detailName" class="detail-value"></span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-label">分类</span>
-            <span id="detailCategory" class="detail-value badge"></span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-label">品牌</span>
-            <span id="detailBrand" class="detail-value"></span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-label">价格</span>
-            <span id="detailPrice" class="detail-value price"></span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-label">季节</span>
-            <span id="detailSeason" class="detail-value badge"></span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-label">颜色</span>
-            <span id="detailColor" class="detail-value">
-              <span id="detailColorSwatch" class="color-swatch"></span>
-              <span id="detailColorText"></span>
-            </span>
-          </div>
-          <div class="detail-field">
-            <span class="detail-label">添加日期</span>
-            <span id="detailDate" class="detail-value"></span>
-          </div>
-          <div class="detail-field notes-field">
-            <span class="detail-label">备注</span>
-            <p id="detailNotes" class="detail-notes"></p>
-          </div>
-        </div>
-        <div class="detail-actions">
-          <button id="editItemBtn" class="btn-secondary">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            编辑
-          </button>
-          <button id="deleteItemBtn" class="btn-danger">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            删除
-          </button>
-        </div>
-      </div>
+      <div id="detailContent" class="detail-content"></div>
     </div>
   </div>
 
-  <!-- Statistics Modal -->
-  <div id="statsModal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>衣橱统计</h2>
-        <button id="closeStatsModal" class="icon-btn" aria-label="关闭">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div id="statsContent" class="stats-content">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <span class="stat-number" id="statTotalItems">0</span>
-            <span class="stat-label">总件数</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-number" id="statTotalValue">¥0</span>
-            <span class="stat-label">总价值</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-number" id="statAvgPrice">¥0</span>
-            <span class="stat-label">平均价格</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-number" id="statMostExpensive">-</span>
-            <span class="stat-label">最贵单品</span>
-          </div>
-        </div>
-        <div class="stats-section">
-          <h3>分类分布</h3>
-          <div id="categoryStats" class="stats-bars"></div>
-        </div>
-        <div class="stats-section">
-          <h3>季节分布</h3>
-          <div id="seasonStats" class="stats-bars"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Confirm Dialog -->
+  <!-- 确认删除 -->
   <div id="confirmDialog" class="modal hidden">
     <div class="modal-content confirm-dialog">
-      <div class="confirm-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      </div>
+      <div class="confirm-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
       <h3 id="confirmTitle">确认删除？</h3>
-      <p id="confirmMessage">此操作不可撤销。</p>
+      <p id="confirmMessage">此操作不可撤销</p>
       <div class="confirm-actions">
-        <button id="confirmCancelBtn" class="btn-secondary">取消</button>
-        <button id="confirmOkBtn" class="btn-danger">确认删除</button>
+        <button id="confirmCancelBtn" class="btn-ghost">取消</button>
+        <button id="confirmOkBtn" class="btn-danger">确认</button>
       </div>
     </div>
   </div>
 
+  <!-- Toast -->
   <div id="toast" class="toast hidden"></div>
 
   <script src="app.js"></script>
 </body>
 </html>
+
+
+
+
+
+
