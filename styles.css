@@ -489,3 +489,4 @@ body::before {
   .items-grid { grid-template-columns: repeat(3, 1fr); gap: 1px; }
   .header-inner { padding: 64px 24px 6px; }
 }
+
