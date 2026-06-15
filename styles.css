@@ -1,4 +1,4 @@
-﻿/* ========================================
+/* ========================================
    iOS-style Design - Smart Wardrobe
    ======================================== */
 
@@ -53,11 +53,9 @@ body {
   position: sticky; top: 0; z-index: 50;
   border-bottom: 0.5px solid var(--separator2);
 }
-.header-inner { display: flex; align-items: center; justify-content: space-between; padding: 52px 16px 6px; }
-.app-title { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); font-family: "SF Pro Display", -apple-system, sans-serif; }
-
+.header-inner { display: flex; align-items: center; gap: 10px; padding: 52px 16px 6px; }
 /* Wardrobe Selector (in header) */
-.wardrobe-bar { padding: 0 16px 8px; position: relative; z-index: 45; }
+${1 flex: 1; position: relative; z-index: 45; }
 .wardrobe-btn {
   display: inline-flex; align-items: center; gap: 4px;
   background: var(--surface2); border: none; border-radius: 8px;
@@ -484,9 +482,10 @@ body::before {
 
 /* Responsive */
 @media(min-width:768px){
-  .app-title { font-size: 40px; }
   .tab-content { padding: 0 24px; }
   .items-grid { grid-template-columns: repeat(3, 1fr); gap: 1px; }
   .header-inner { padding: 64px 24px 6px; }
 }
+
+
 
