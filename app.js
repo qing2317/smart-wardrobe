@@ -8,7 +8,7 @@ const SEASONS = { all:"全年", spring:"春", summer:"夏", autumn:"秋", winter
 const SEASON_ICON = { all:"", spring:"🌸", summer:"☀️", autumn:"🍂", winter:"❄️" };
 const OCCASIONS = ["日常","通勤","运动","约会","聚会","旅行","其他"];
 
-const DB_NAME = "SmartWardrobeDB", DB_VER = 1, STORE_ITEMS = "items", STORE_OUTFITS = "outfits", STORE_WARDROBES = "wardrobes";
+const DB_NAME = "SmartWardrobeDB", DB_VER = 2, STORE_ITEMS = "items", STORE_OUTFITS = "outfits", STORE_WARDROBES = "wardrobes";
 
 let state = { wardrobes: [], selectedWardrobeId: null,
   items: [], outfits: [], currentTab: "wardrobe",
@@ -41,6 +41,9 @@ function openDB() {
       if (!db.objectStoreNames.contains(STORE_OUTFITS)) {
         const s = db.createObjectStore(STORE_OUTFITS, { keyPath: "id" });
         s.createIndex("createdAt","createdAt",{unique:false});
+      }
+      if (!db.objectStoreNames.contains(STORE_WARDROBES)) {
+        db.createObjectStore(STORE_WARDROBES, { keyPath: "id" });
       }
     };
     r.onsuccess = (e) => resolve(e.target.result);
