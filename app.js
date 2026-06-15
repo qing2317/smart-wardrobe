@@ -219,11 +219,11 @@ async function fetchWeather() {
   } catch {
     // Fallback: use mock data
     const month = new Date().getMonth();
-    let temp = 22, icon = "??", desc = "晴";
-    if (month >= 3 && month <= 5) { temp = 22; icon = "??"; desc = "春季"; }
-    else if (month >= 6 && month <= 8) { temp = 32; icon = "??"; desc = "夏季"; }
-    else if (month >= 9 && month <= 11) { temp = 18; icon = "??"; desc = "秋季"; }
-    else { temp = 8; icon = "??"; desc = "冬季"; }
+    let temp = 22, icon = "☀️", desc = "晴";
+    if (month >= 3 && month <= 5) { temp = 22; icon = "🌤️"; desc = "春季"; }
+    else if (month >= 6 && month <= 8) { temp = 32; icon = "☀️"; desc = "夏季"; }
+    else if (month >= 9 && month <= 11) { temp = 18; icon = "🍂"; desc = "秋季"; }
+    else { temp = 8; icon = "❄️"; desc = "冬季"; }
     card.innerHTML = `<div class="weather-main">
       <div class="weather-icon">${icon}</div>
       <div class="weather-temp">${temp}<sup>°C</sup></div>
