@@ -15,56 +15,60 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-      
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-      
-      - name: Install Bubblewrap
-        run: npm install -g @bubblewrap/cli
-      
+
+      - name: Install Bubblewrap and Expect
+        run: |
+          npm install -g @bubblewrap/cli
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq expect
+
       - name: Generate Keystore
         run: |
           keytool -genkey -v -keystore app.keystore -storepass android -alias app -keypass android \
             -keyalg RSA -keysize 2048 -validity 365 \
             -dname "CN=SmartWardrobe, OU=Dev, O=SmartWardrobe, L=Unknown, ST=Unknown, C=Unknown"
           ls -la app.keystore
-      
+
       - name: Generate Android App
         run: |
           mkdir -p android-app
           cd android-app
-          python3 -c "
-import os
-content = '''set timeout 120
-spawn npx --yes @bubblewrap/cli init --manifest https://qing2317.github.io/smart-wardrobe/manifest.json --jks ../app.keystore --key app --storePassword android --keyPassword android --appVersionName \"1.0.0\" --appVersionCode 1
-expect \"install the JDK\"
-send \"n\\r\"
-expect \"Path to your existing JDK\"
-send \"''' + os.environ['JAVA_HOME'] + '''\\r\"
-expect eof
-lassign [wait] pid spawnid os_error_flag value
-exit \$value'''
-with open('init.exp', 'w') as f:
-    f.write(content)
-"
+          echo 'set timeout 120' > init.exp
+          echo 'spawn npx --yes @bubblewrap/cli init \' >> init.exp
+          echo '  --manifest https://qing2317.github.io/smart-wardrobe/manifest.json \' >> init.exp
+          echo '  --jks ../app.keystore \' >> init.exp
+          echo '  --key app \' >> init.exp
+          echo '  --storePassword android \' >> init.exp
+          echo '  --keyPassword android \' >> init.exp
+          echo '  --appVersionName "1.0.0" \' >> init.exp
+          echo '  --appVersionCode 1' >> init.exp
+          echo 'expect "install the JDK"' >> init.exp
+          echo 'send "Y\r"' >> init.exp
+          echo 'expect eof' >> init.exp
+          echo 'lassign [wait] pid spawnid os_error_flag value' >> init.exp
+          echo 'exit $value' >> init.exp
+          cat init.exp
           expect init.exp
-      
+
       - name: Build APK
         run: |
           cd android-app
           npx --yes @bubblewrap/cli build
-      
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
