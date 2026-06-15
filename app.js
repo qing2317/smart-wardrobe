@@ -1,11 +1,11 @@
-﻿/* ========================================
+/* ========================================
    Smart Wardrobe v2 - App Logic
    ======================================== */
 
 // ===== Constants & State =====
 const CATEGORIES = { tops:"上衣", bottoms:"下装", shoes:"鞋子", outerwear:"外套", dresses:"连衣裙", accessories:"配饰" };
 const SEASONS = { all:"全年", spring:"春", summer:"夏", autumn:"秋", winter:"冬" };
-const SEASON_ICON = { all:"", spring:"🌸", summer:"☀️", autumn:"🍂", winter:"❄️" };
+const SEASON_ICON = { all:"", spring:"??", summer:"??", autumn:"??", winter:"??" };
 const OCCASIONS = ["日常","通勤","运动","约会","聚会","旅行","其他"];
 
 const DB_NAME = "SmartWardrobeDB", DB_VER = 2, STORE_ITEMS = "items", STORE_OUTFITS = "outfits", STORE_WARDROBES = "wardrobes";
@@ -23,9 +23,9 @@ const WMO_CODES = {
   80:"阵雨",81:"中阵雨",82:"大阵雨",85:"小阵雪",86:"大阵雪",95:"雷暴",
   96:"雷暴+冰雹",99:"雷暴+冰雹"
 };
-const WMO_ICONS = { 0:"☀️",1:"🌤",2:"⛅",3:"☁️",45:"🌫",48:"🌫",51:"🌦",53:"🌦",55:"🌦",
-  56:"🌧",57:"🌧",61:"🌧",63:"🌧",65:"🌧",66:"🌧",67:"🌧",71:"🌨",73:"🌨",75:"🌨",
-  77:"❄️",80:"🌦",81:"🌦",82:"🌧",85:"🌨",86:"🌨",95:"⛈",96:"⛈",99:"⛈" };
+const WMO_ICONS = { 0:"??",1:"??",2:"?",3:"??",45:"??",48:"??",51:"??",53:"??",55:"??",
+  56:"??",57:"??",61:"??",63:"??",65:"??",66:"??",67:"??",71:"??",73:"??",75:"??",
+  77:"??",80:"??",81:"??",82:"??",85:"??",86:"??",95:"?",96:"?",99:"?" };
 
 // ===== IndexedDB =====
 function openDB() {
@@ -129,6 +129,7 @@ async function loadItems() {
   try { state.items = await dbGetAll(STORE_ITEMS); }
   catch(e) { state.items = []; }
   renderWardrobe();
+  renderProfile();
 }
 async function saveItem(data) {
   const now = Date.now();
@@ -168,7 +169,7 @@ function renderWardrobe() {
 
   count.textContent = "共 " + state.items.length + " 件";
   const sum = state.items.reduce((s,i) => s + (parseFloat(i.price)||0), 0);
-  total.textContent = "总价值 ¥" + sum.toFixed(0);
+  total.textContent = "总价值 ￥" + sum.toFixed(0);
 
   if (filtered.length === 0) {
     grid.classList.add("hidden");
@@ -202,7 +203,7 @@ function createItemCard(item) {
   body.innerHTML = `<div class="item-card-name">${item.name||"未命名"}</div>
     <div class="item-card-brand">${item.brand||""}</div>
     <div class="item-card-meta">
-      ${item.price ? `<span class="item-card-price">¥${parseFloat(item.price).toFixed(0)}</span>` : ""}
+      ${item.price ? `<span class="item-card-price">￥${parseFloat(item.price).toFixed(0)}</span>` : ""}
       ${item.season && item.season !== "all" ? `<span class="item-card-season">${SEASON_ICON[item.season]}${SEASONS[item.season]}</span>` : ""}
     </div>`;
   card.appendChild(body);
@@ -223,11 +224,11 @@ async function fetchWeather() {
   } catch {
     // Fallback: use mock data
     const month = new Date().getMonth();
-    let temp = 22, icon = "☀️", desc = "晴";
-    if (month >= 3 && month <= 5) { temp = 22; icon = "🌤"; desc = "春季"; }
-    else if (month >= 6 && month <= 8) { temp = 32; icon = "☀️"; desc = "夏季"; }
-    else if (month >= 9 && month <= 11) { temp = 18; icon = "🍂"; desc = "秋季"; }
-    else { temp = 8; icon = "❄️"; desc = "冬季"; }
+    let temp = 22, icon = "??", desc = "晴";
+    if (month >= 3 && month <= 5) { temp = 22; icon = "??"; desc = "春季"; }
+    else if (month >= 6 && month <= 8) { temp = 32; icon = "??"; desc = "夏季"; }
+    else if (month >= 9 && month <= 11) { temp = 18; icon = "??"; desc = "秋季"; }
+    else { temp = 8; icon = "??"; desc = "冬季"; }
     card.innerHTML = `<div class="weather-main">
       <div class="weather-icon">${icon}</div>
       <div class="weather-temp">${temp}<sup>°C</sup></div>
@@ -240,7 +241,7 @@ async function fetchWeather() {
 function renderWeather(card, data) {
   const cur = data.current;
   const code = cur.weather_code;
-  const icon = WMO_ICONS[code] || "🌤";
+  const icon = WMO_ICONS[code] || "??";
   const desc = WMO_CODES[code] || "未知";
   card.innerHTML = `<div class="weather-main">
     <div class="weather-icon">${icon}</div>
@@ -286,7 +287,7 @@ function createOutfitCard(outfit) {
     <span class="outfit-card-occasion">${outfit.occasion||"日常"}</span>
   </div><div class="outfit-items">${items.map(i =>
     i ? (i.imageData ? `<img class="outfit-item-thumb" src="${i.imageData}" alt="">` :
-      '<div class="outfit-item-thumb-placeholder">👔</div>') : '<div class="outfit-item-thumb-placeholder">❓</div>'
+      '<div class="outfit-item-thumb-placeholder">??</div>') : '<div class="outfit-item-thumb-placeholder">?</div>'
   ).join("")}</div>
   ${outfit.weatherTag ? `<div class="outfit-card-weather">${outfit.weatherTag}</div>` : ""}`;
 
@@ -389,13 +390,13 @@ function showRecommendations(recs, tmpl) {
   modal.id = "recModal";
   modal.className = "modal";
   modal.innerHTML = `<div class="modal-content"><div class="modal-header">
-    <h2>🤖 AI 推荐搭配</h2>
+    <h2>?? AI 推荐搭配</h2>
     <button class="close-rec-btn icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div><div class="recommend-list">${recs.length === 0 ?
     '<div style="text-align:center;padding:40px;color:var(--text3)">没有可推荐的搭配，请先添加更多衣物</div>' :
     recs.map(r => `<div class="recommend-item" data-rec='${JSON.stringify(r).replace(/'/g,"&#39;")}'>
       <div class="ri-weather">${r.weatherTag}</div>
-      <div class="ri-items">${r.items.map(i => `<span class="ri-item-tag">${i.imageData ? "📷" : "👔"} ${i.name||""}</span>`).join("")}</div>
+      <div class="ri-items">${r.items.map(i => `<span class="ri-item-tag">${i.imageData ? "??" : "??"} ${i.name||""}</span>`).join("")}</div>
       <div class="ri-reason">${r.reason}</div>
       <button class="ri-save">保存这组搭配</button>
     </div>`).join("")}
@@ -431,7 +432,7 @@ function renderProfile() {
   else { ai.classList.add("hidden"); ad.style.display = "block"; }
   document.getElementById("profileTotal").textContent = items.length;
   const sum = items.reduce((s,i) => s + (parseFloat(i.price)||0), 0);
-  document.getElementById("profileValue").textContent = "¥" + sum.toFixed(0);
+  document.getElementById("profileValue").textContent = "￥" + sum.toFixed(0);
   document.getElementById("profileOutfits").textContent = state.outfits.length;
 
   const cats = new Set(items.map(i => i.category));
@@ -476,7 +477,7 @@ function showDetail(id) {
       <div class="detail-row"><span class="detail-label">名称</span><span class="detail-value">${item.name||"-"}</span></div>
       <div class="detail-row"><span class="detail-label">分类</span><span class="detail-value badge">${cats}</span></div>
       <div class="detail-row"><span class="detail-label">品牌</span><span class="detail-value">${item.brand||"-"}</span></div>
-      <div class="detail-row"><span class="detail-label">价格</span><span class="detail-value price">${item.price ? "¥"+parseFloat(item.price).toFixed(2) : "-"}</span></div>
+      <div class="detail-row"><span class="detail-label">价格</span><span class="detail-value price">${item.price ? "￥"+parseFloat(item.price).toFixed(2) : "-"}</span></div>
       <div class="detail-row"><span class="detail-label">季节</span><span class="detail-value badge">${seasonTxt}</span></div>
       <div class="detail-row"><span class="detail-label">颜色</span><span class="detail-value">${item.color ? `<span class="color-swatch" style="background:${item.color}"></span>${item.colorText||""}` : "-"}</span></div>
       <div class="detail-row"><span class="detail-label">日期</span><span class="detail-value">${date}</span></div>
@@ -579,6 +580,7 @@ function init() {
       category: document.getElementById("itemCategory").value,
       brand: document.getElementById("itemBrand").value.trim(),
       price: parseFloat(document.getElementById("itemPrice").value) || 0,
+      wardrobeId: document.getElementById("itemWardrobe").value || "",
       season: document.getElementById("itemSeason").value,
       color: document.getElementById("itemColor").value,
       colorText: document.getElementById("itemColorText").value.trim(),
@@ -849,14 +851,14 @@ function showStats() {
   const m = document.createElement("div"); m.id = "statsModal";
   m.className = "modal";
   m.innerHTML = `<div class="modal-content">
-    <div class="modal-header"><h2>📊 衣橱统计</h2>
+    <div class="modal-header"><h2>?? 衣橱统计</h2>
       <button id="closeStatsBtn" class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="recommend-list">
       <div class="profile-stats-grid">
         <div class="profile-stat-card"><span class="ps-number">${total}</span><span class="ps-label">总件数</span></div>
-        <div class="profile-stat-card"><span class="ps-number">¥${sum.toFixed(0)}</span><span class="ps-label">总价值</span></div>
-        <div class="profile-stat-card"><span class="ps-number">¥${avg.toFixed(0)}</span><span class="ps-label">平均价格</span></div>
+        <div class="profile-stat-card"><span class="ps-number">￥${sum.toFixed(0)}</span><span class="ps-label">总价值</span></div>
+        <div class="profile-stat-card"><span class="ps-number">￥${avg.toFixed(0)}</span><span class="ps-label">平均价格</span></div>
         <div class="profile-stat-card"><span class="ps-number">${maxItem ? maxItem.name : "-"}</span><span class="ps-label">最贵单品</span></div>
       </div>
       <div class="profile-section"><h3>分类分布</h3>
@@ -884,3 +886,4 @@ function showStats() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
