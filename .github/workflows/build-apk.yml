@@ -59,7 +59,7 @@ jobs:
             --storePassword android \
             --keyPassword android \
             --appVersionName \"1.0.0\" \
-            --appVersionCode 1 --jdkDir \
+            --jdkDir $JAVA_HOME
 
       - name: Build APK
         run: |
@@ -71,6 +71,8 @@ jobs:
         with:
           name: smart-wardrobe-apk
           path: android-app/app/build/outputs/apk/release/*.apk
+
+
 
 
 
