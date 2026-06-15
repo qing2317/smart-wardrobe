@@ -108,10 +108,21 @@
       <!-- ====== Tab: 我的 ====== -->
       <section id="tabProfile" class="tab-content">
         <div class="profile-header">
-          <div class="profile-avatar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div id="avatarContainer" class="profile-avatar clickable-avatar">
+            <img id="avatarImage" class="avatar-image hidden" src="" alt="头像">
+            <svg id="avatarDefault" class="avatar-default" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div class="avatar-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
           </div>
-          <h2>我的衣橱</h2>
+          <input type="file" id="avatarCameraInput" accept="image/*" capture="environment" hidden>
+          <input type="file" id="avatarGalleryInput" accept="image/*" hidden>
+          <div class="profile-name-row">
+            <h2 id="displayName">我的衣橱</h2>
+            <button id="editNameBtn" class="name-edit-btn" aria-label="修改昵称">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+          </div>
           <p class="profile-subtitle">智能管理你的个人衣物</p>
         </div>
         <div class="profile-stats-grid">
@@ -328,6 +339,7 @@
   <script src="app.js"></script>
 </body>
 </html>
+
 
 
 
