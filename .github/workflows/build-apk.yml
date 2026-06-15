@@ -44,24 +44,21 @@ jobs:
         run: |
           mkdir -p android-app
           cd android-app
-          expect -c '
-            set timeout 120
-            spawn npx --yes @bubblewrap/cli init \
-              --manifest https://qing2317.github.io/smart-wardrobe/manifest.json \
-              --jks ../app.keystore \
-              --key app \
-              --storePassword android \
-              --keyPassword android \
-              --appVersionName "1.0.0" \
-              --appVersionCode 1
-            expect "install the JDK"
-            send "n\r"
-            expect "Path to your existing JDK"
-            send "$::env(JAVA_HOME)\r"
-            expect eof
-            lassign [wait] pid spawnid os_error_flag value
-            exit $value
-          '
+          python3 -c "
+import os
+content = '''set timeout 120
+spawn npx --yes @bubblewrap/cli init --manifest https://qing2317.github.io/smart-wardrobe/manifest.json --jks ../app.keystore --key app --storePassword android --keyPassword android --appVersionName \"1.0.0\" --appVersionCode 1
+expect \"install the JDK\"
+send \"n\\r\"
+expect \"Path to your existing JDK\"
+send \"''' + os.environ['JAVA_HOME'] + '''\\r\"
+expect eof
+lassign [wait] pid spawnid os_error_flag value
+exit \$value'''
+with open('init.exp', 'w') as f:
+    f.write(content)
+"
+          expect init.exp
       
       - name: Build APK
         run: |
