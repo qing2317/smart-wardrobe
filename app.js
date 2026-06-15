@@ -147,7 +147,8 @@ async function deleteItem(id) {
 
 // ===== Wardrobe: Render =====
 function getFilteredItems() {
-  if (state.selectedWardrobeId) return state.items.filter(i => i.wardrobeId === state.selectedWardrobeId || !i.wardrobeId);
+  let items = state.selectedWardrobeId ? state.items.filter(i => i.wardrobeId === state.selectedWardrobeId || !i.wardrobeId) : [...state.items];
+
   if (state.catFilter !== "all") items = items.filter(i => i.category === state.catFilter);
   if (state.seasonFilter !== "all") items = items.filter(i => i.season === state.seasonFilter || i.season === "all");
   if (state.searchQuery) {
