@@ -495,6 +495,14 @@ function showDetail(id) {
 function openForm(itemId) {
   const form = document.getElementById("itemForm");
   form.reset(); document.getElementById("itemId").value = "";
+  const ws = document.getElementById("itemWardrobe");
+  ws.innerHTML = "<option value=''>请选择衣柜</option>";
+  state.wardrobes.forEach(w => {
+    var o = document.createElement("option");
+    o.value = w.id; o.textContent = w.name;
+    if (w.id === state.selectedWardrobeId) o.selected = true;
+    ws.appendChild(o);
+  });
   document.getElementById("imagePreview").innerHTML =
     '<div class="image-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>点击上传图片</span></div>';
   document.getElementById("imageActions").classList.add("hidden");
@@ -511,6 +519,7 @@ function openForm(itemId) {
       state.editingId = itemId;
       document.getElementById("modalTitle").textContent = "编辑衣物";
       document.getElementById("itemId").value = itemId;
+      document.getElementById("itemWardrobe").value = item.wardrobeId || "";
       document.getElementById("itemName").value = item.name || "";
       document.getElementById("itemCategory").value = item.category || "";
       document.getElementById("itemBrand").value = item.brand || "";
