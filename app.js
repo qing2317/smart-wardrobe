@@ -419,6 +419,12 @@ function showRecommendations(recs, tmpl) {
 // ===== Profile =====
 function renderProfile() {
   const items = state.items;
+  const prof = loadProfile();
+  document.getElementById("displayName").textContent = prof.name;
+  const ai = document.getElementById("avatarImage");
+  const ad = document.getElementById("avatarDefault");
+  if (prof.avatar) { ai.src = prof.avatar; ai.classList.remove("hidden"); ad.style.display = "none"; }
+  else { ai.classList.add("hidden"); ad.style.display = "block"; }
   document.getElementById("profileTotal").textContent = items.length;
   const sum = items.reduce((s,i) => s + (parseFloat(i.price)||0), 0);
   document.getElementById("profileValue").textContent = "¥" + sum.toFixed(0);
@@ -635,6 +641,32 @@ function init() {
 
   // Stats
   document.getElementById("profileStatsBtn").addEventListener("click", showStats);
+  document.getElementById("avatarContainer").addEventListener("click", () => document.getElementById("avatarGalleryInput").click());
+  document.getElementById("avatarGalleryInput").addEventListener("change", async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    try {
+      const url = await readFileAsDataURL(file);
+      const compressed = await compressImage(url, 400);
+      const prof = loadProfile(); prof.avatar = compressed; saveProfile(prof);
+      renderProfile(); showToast("头像已更新", "success");
+    } catch { showToast("头像加载失败", "error"); }
+    e.target.value = "";
+  });
+  document.getElementById("editNameBtn").addEventListener("click", () => {
+    const prof = loadProfile();
+    const n = prompt("设置昵称：", prof.name);
+    if (n && n.trim()) { prof.name = n.trim(); saveProfile(prof); renderProfile(); showToast("昵称已更新", "success"); }
+  });
+  document.getElementById("avatarCameraInput").addEventListener("change", async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    try {
+      const url = await readFileAsDataURL(file);
+      const compressed = await compressImage(url, 400);
+      const prof = loadProfile(); prof.avatar = compressed; saveProfile(prof);
+      renderProfile(); showToast("头像已更新", "success");
+    } catch { showToast("拍照失败", "error"); }
+    e.target.value = "";
+  });
 
   // Init data
   loadItems();
@@ -642,9 +674,14 @@ function init() {
 }
 
 // ===== Statistics =====
+
+// ===== Profile Data =====
 function loadProfile() {
-  try { return JSON.parse(localStorage.getItem('sw_profile')) || { name:'我的衣橱', avatar:'' }; }
-  catch(e) { return { name:'我的衣橱', avatar:'' }; }
+  try { return JSON.parse(localStorage.getItem("sw_profile")) || { name:"我的衣橱", avatar:"" }; }
+  catch(e) { return { name:"我的衣橱", avatar:"" }; }
+}
+function saveProfile(data) {
+  localStorage.setItem("sw_profile", JSON.stringify(data));
 }
 
 function showStats() {
