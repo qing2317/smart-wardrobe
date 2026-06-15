@@ -148,7 +148,7 @@ async function deleteItem(id) {
 
 // ===== Wardrobe: Render =====
 function getFilteredItems() {
-  let items = state.selectedWardrobeId ? state.items.filter(i => i.wardrobeId === state.selectedWardrobeId || !i.wardrobeId) : [...state.items];
+  let items = [...state.items];
 
   if (state.catFilter !== "all") items = items.filter(i => i.category === state.catFilter);
   if (state.seasonFilter !== "all") items = items.filter(i => i.season === state.seasonFilter || i.season === "all");
@@ -175,7 +175,7 @@ function renderWardrobe() {
     grid.classList.add("hidden");
     empty.classList.remove("hidden");
     empty.querySelector("h2").textContent = (state.items.length === 0) ? "衣橱还是空的" : "没有匹配的衣物";
-    empty.querySelector("p").textContent = (state.items.length === 0) ? "快去「我的」页面添加衣物吧" : "试试调整筛选条件或切换衣柜";
+    empty.querySelector("p").textContent = (state.items.length === 0) ? "快去「我的」页面添加衣物吧" : "试试调整筛选条件";
     return;
   }
   grid.classList.remove("hidden");
@@ -886,5 +886,6 @@ function showStats() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
 
 
