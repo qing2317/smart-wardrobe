@@ -53,7 +53,7 @@ body {
   position: sticky; top: 0; z-index: 50;
   border-bottom: 0.5px solid var(--separator2);
 }
-.header-inner { display: flex; align-items: center; gap: 10px; padding: 52px 16px 6px; }
+.header-inner { display: flex; align-items: center; justify-content: space-between; padding: 52px 16px 6px; }
 /* Wardrobe Selector (in header) */
 ${1 flex: 1; position: relative; z-index: 45; }
 .wardrobe-btn {
@@ -486,6 +486,7 @@ body::before {
   .items-grid { grid-template-columns: repeat(3, 1fr); gap: 1px; }
   .header-inner { padding: 64px 24px 6px; }
 }
+
 
 
 
