@@ -646,6 +646,7 @@ function init() {
   document.getElementById("searchClear").addEventListener("click", () => {
     document.getElementById("searchInput").value = ""; state.searchQuery = "";
     document.getElementById("searchClear").classList.add("hidden");
+    document.getElementById("searchBar").classList.add("hidden");
     renderWardrobe();
   });
 
