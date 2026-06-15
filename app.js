@@ -148,7 +148,7 @@ async function deleteItem(id) {
 
 // ===== Wardrobe: Render =====
 function getFilteredItems() {
-  let items = [...state.items];
+  let items = state.selectedWardrobeId ? state.items.filter(i => i.wardrobeId === state.selectedWardrobeId || !i.wardrobeId) : [...state.items];
 
   if (state.catFilter !== "all") items = items.filter(i => i.category === state.catFilter);
   if (state.seasonFilter !== "all") items = items.filter(i => i.season === state.seasonFilter || i.season === "all");
@@ -219,11 +219,11 @@ async function fetchWeather() {
   } catch {
     // Fallback: use mock data
     const month = new Date().getMonth();
-    let temp = 22, icon = "☀️", desc = "晴";
-    if (month >= 3 && month <= 5) { temp = 22; icon = "🌤️"; desc = "春季"; }
-    else if (month >= 6 && month <= 8) { temp = 32; icon = "☀️"; desc = "夏季"; }
-    else if (month >= 9 && month <= 11) { temp = 18; icon = "🍂"; desc = "秋季"; }
-    else { temp = 8; icon = "❄️"; desc = "冬季"; }
+    let temp = 22, icon = "??", desc = "晴";
+    if (month >= 3 && month <= 5) { temp = 22; icon = "??"; desc = "春季"; }
+    else if (month >= 6 && month <= 8) { temp = 32; icon = "??"; desc = "夏季"; }
+    else if (month >= 9 && month <= 11) { temp = 18; icon = "??"; desc = "秋季"; }
+    else { temp = 8; icon = "??"; desc = "冬季"; }
     card.innerHTML = `<div class="weather-main">
       <div class="weather-icon">${icon}</div>
       <div class="weather-temp">${temp}<sup>°C</sup></div>
@@ -846,7 +846,7 @@ function showStats() {
   const m = document.createElement("div"); m.id = "statsModal";
   m.className = "modal";
   m.innerHTML = `<div class="modal-content">
-    <div class="modal-header"><h2>衣橱统计</h2>
+    <div class="modal-header"><h2>?? 衣橱统计</h2>
       <button id="closeStatsBtn" class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <div class="recommend-list">
@@ -881,6 +881,7 @@ function showStats() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
 
 
 
