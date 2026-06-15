@@ -52,14 +52,14 @@ jobs:
         run: |
           mkdir -p android-app
           cd android-app
-          script -q -c "printf 'n\n\\n' | npx --yes @bubblewrap/cli init \
+          printf 'n\n' | npx --yes @bubblewrap/cli init \
             --manifest https://qing2317.github.io/smart-wardrobe/manifest.json \
             --jks ../app.keystore \
             --key app \
             --storePassword android \
             --keyPassword android \
             --appVersionName \"1.0.0\" \
-            --appVersionCode 1" /dev/null
+            --appVersionCode 1 --jdkDir \
 
       - name: Build APK
         run: |
@@ -71,6 +71,7 @@ jobs:
         with:
           name: smart-wardrobe-apk
           path: android-app/app/build/outputs/apk/release/*.apk
+
 
 
 
