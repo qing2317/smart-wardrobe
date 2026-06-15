@@ -173,9 +173,7 @@ function renderWardrobe() {
 
   if (filtered.length === 0) {
     grid.classList.add("hidden");
-    empty.classList.remove("hidden");
-    empty.querySelector("h2").textContent = (state.items.length === 0) ? "衣橱还是空的" : "没有匹配的衣物";
-    empty.querySelector("p").textContent = (state.items.length === 0) ? "快去「我的」页面添加衣物吧" : "试试调整筛选条件";
+    empty.classList.add("hidden");
     return;
   }
   grid.classList.remove("hidden");
@@ -886,6 +884,7 @@ function showStats() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
 
 
 
