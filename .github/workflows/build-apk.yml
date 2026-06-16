@@ -1,79 +1,17 @@
 name: Build Android APK
-
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-
-concurrency:
-  group: build-apk
-  cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Bubblewrap and Expect
-        run: |
-          npm install -g @bubblewrap/cli
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq expect
-
-      - name: Generate Keystore
-        run: |
-          keytool -genkey -v -keystore app.keystore -storepass android -alias app -keypass android \
-            -keyalg RSA -keysize 2048 -validity 365 \
-            -dname "CN=SmartWardrobe, OU=Dev, O=SmartWardrobe, L=Unknown, ST=Unknown, C=Unknown"
-          ls -la app.keystore
-
-      - name: Generate Android App
-        run: |
-          mkdir -p android-app
-          cd android-app
-          printf 'n\n' | npx --yes @bubblewrap/cli init \
-            --manifest https://qing2317.github.io/smart-wardrobe/manifest.json \
-            --jks ../app.keystore \
-            --key app \
-            --storePassword android \
-            --keyPassword android \
-            --appVersionName \"1.0.0\" \
-            --jdkDir $JAVA_HOME
-
+          node-version: '20'
       - name: Build APK
-        run: |
-          cd android-app
-          npx --yes @bubblewrap/cli build
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+        run: npx @pwabuilder/cli package https://qing2317.github.io/smart-wardrobe/ 2>&1 && find . -name '*.apk' -exec cp {} ./smart-wardrobe.apk \; || true
+      - uses: actions/upload-artifact@v4
         with:
           name: smart-wardrobe-apk
-          path: android-app/app/build/outputs/apk/release/*.apk
-
-
-
-
-
-
+          path: smart-wardrobe.apk
