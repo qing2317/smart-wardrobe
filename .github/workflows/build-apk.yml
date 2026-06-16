@@ -11,8 +11,9 @@ jobs:
           node-version: '20'
       - name: Build APK
         run: |
+          rm -f app.keystore
           keytool -genkey -v -keystore app.keystore -alias pwa -keyalg RSA -keysize 2048 -validity 10000 -storepass password -keypass password -dname "CN=PWA,OU=PWA,O=PWA,L=City,S=State,C=CN"
-          npx @bubblewrap/cli init --manifest=https://qing2317.github.io/smart-wardrobe/manifest.json --directory=./android --signingKey=app.keystore --signingKeyAlias=pwa --signingKeyPassword=password
+          npx @bubblewrap/cli init --manifest=https://qing2317.github.io/smart-wardrobe/manifest.json --directory=./android --signingKey=app.keystore --signingKeyAlias=pwa --signingKeyPassword=password --acceptJdk
           npx @bubblewrap/cli build --directory=./android || true
           find ./android -name "*.apk" -exec cp {} ./smart-wardrobe.apk \; || true
           ls -la *.apk
