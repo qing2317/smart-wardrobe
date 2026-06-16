@@ -1,79 +1,8 @@
-name: Build APK
-on: workflow_dispatch
+name: Test
+on:
+  workflow_dispatch:
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - name: Build
-        run: |
-          export ANDROID_HOME=$HOME/android
-          mkdir -p $ANDROID_HOME
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
-          unzip -q tools.zip -d $ANDROID_HOME/cmdline-tools
-          mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" 2>&1 | tail -5
-          mkdir -p app/src/main/java/com/example/app app/src/main/res/values
-          cat > settings.gradle << 'X'
-pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
-dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
-rootProject.name = "MyApp"
-include(":app")
-X
-          cat > build.gradle << 'X'
-plugins { id("com.android.application") version "8.2.0" apply false }
-X
-          cat > gradle.properties << 'X'
-android.useAndroidX=true
-org.gradle.jvmargs=-Xmx2g
-X
-          cat > app/build.gradle << 'X'
-plugins { id("com.android.application") }
-android { namespace "com.example.app"; compileSdk 34; defaultConfig { applicationId "com.example.app"; minSdk 21; targetSdk 34; versionCode 1; versionName "1.0" } }
-dependencies { implementation 'androidx.appcompat:appcompat:1.6.1' }
-X
-          cat > app/src/main/AndroidManifest.xml << 'X'
-<?xml version="1.0"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-<uses-permission android:name="android.permission.INTERNET"/>
-<application android:label="SmartWardrobe" android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-<activity android:name=".MainActivity" android:exported="true">
-<intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
-</activity></application></manifest>
-X
-          cat > app/src/main/java/com/example/app/MainActivity.java << 'X'
-package com.example.app;
-import android.os.Bundle;
-import android.webkit.WebView;
-import android.webkit.WebSettings;
-import androidx.appcompat.app.AppCompatActivity;
-public class MainActivity extends AppCompatActivity {
-    WebView wv;
-    @Override protected void onCreate(Bundle b) {
-        super.onCreate(b);
-        wv = new WebView(this);
-        wv.getSettings().setJavaScriptEnabled(true);
-        wv.getSettings().setDomStorageEnabled(true);
-        wv.loadUrl("https://qing2317.github.io/smart-wardrobe/");
-        setContentView(wv);
-    }
-    @Override public void onBackPressed() {
-        if (wv.canGoBack()) wv.goBack(); else super.onBackPressed();
-    }
-}
-X
-          wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip -O gradle.zip
-          unzip -q gradle.zip
-          ./gradle-8.5/bin/gradle wrapper --gradle-version 8.5
-          export JAVA_HOME=$JAVA_HOME_17_X64
-          export ANDROID_HOME=$HOME/android
-          ./gradlew assembleRelease 2>&1 | tail -20
-          find . -name "*.apk" -type f
-      - uses: actions/upload-artifact@v4
-        with:
-          name: apk
-          path: app/build/outputs/apk/**/*.apk
+      - run: echo ok
