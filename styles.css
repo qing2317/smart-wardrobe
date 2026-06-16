@@ -173,7 +173,7 @@ ${1 flex: 1; position: relative; z-index: 45; }
   background: var(--surface2); border-radius: var(--radius-xs);
   padding: 2px; overflow: hidden;
 }
-.filter-chips.season-chips { margin-top: 6px; }
+  .filter-chips.season-chips { margin-top: 6px; padding-bottom: 0; }
 .chip {
   flex: 1; padding: 6px 0; background: transparent; border: none;
   color: var(--text2); font-size: 13px; font-weight: 500; cursor: pointer;
