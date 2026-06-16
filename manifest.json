@@ -1,6 +1,6 @@
 {
   "name": "智能衣橱",
-  "short_name": "衣橱",
+  "short_name": "智能衣橱",
   "description": "智能管理你的个人衣物，轻松搭配推荐",
   "start_url": "index.html",
   "scope": ".",
