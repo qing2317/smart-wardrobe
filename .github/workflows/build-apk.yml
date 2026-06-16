@@ -13,30 +13,22 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Build APK with Capacitor
+      - name: Build APK
         env:
           ANDROID_HOME: /Users/runner/Library/Android/sdk
         run: |
+          cd /Users/runner/work/smart-wardrobe/smart-wardrobe
           echo '{"name":"SmartWardrobe","version":"1.0.0","private":true}' > package.json
           npm install @capacitor/core @capacitor/cli @capacitor/android
           npx cap init SmartWardrobe com.smartwardrobe.app --yes
-          cat > capacitor.config.json << 'EOF'
-          {
-            "appId": "com.smartwardrobe.app",
-            "appName": "SmartWardrobe",
-            "webDir": ".",
-            "server": {
-              "url": "https://qing2317.github.io/smart-wardrobe/"
-            }
-          }
-          EOF
+          node -e "require('fs').writeFileSync('capacitor.config.json', JSON.stringify({appId:'com.smartwardrobe.app',appName:'SmartWardrobe',webDir:'.',server:{url:'https://qing2317.github.io/smart-wardrobe/'}},null,2))"
           npx cap add android
           npx cap sync android
           cd android
-          export ANDROID_HOME=/Users/runner/Library/Android/sdk
+          export ANDROID_HOME="$HOME/Library/Android/sdk"
           ./gradlew assembleRelease
-          find . -name "*.apk" -type f
+          find /Users/runner/work/smart-wardrobe/smart-wardrobe -name '*.apk' -type f 2>/dev/null
       - uses: actions/upload-artifact@v4
         with:
           name: smart-wardrobe-apk
-          path: android/app/build/outputs/**/*.apk
+          path: /Users/runner/work/smart-wardrobe/smart-wardrobe/android/app/build/outputs/**/*.apk
