@@ -10,22 +10,62 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Build
+      - name: Build Signed APK
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
         run: |
+          # Create keystore for signing
+          keytool -genkey -v -keystore keystore.jks -alias release -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Dev,OU=Dev,O=Dev,L=City,S=State,C=CN"
+          
+          # Download Gradle
           wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip -O gradle.zip
           unzip -q gradle.zip
+          
+          # Create project
           mkdir -p app/src/main/java/com/example/app app/src/main/res/values
+          
           printf 'pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }\ndependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }\nrootProject.name = "MyApp"\ninclude(":app")\n' > settings.gradle
           printf 'plugins { id("com.android.application") version "8.2.0" apply false }\n' > build.gradle
           printf 'android.useAndroidX=true\norg.gradle.jvmargs=-Xmx2g\n' > gradle.properties
-          printf 'plugins { id("com.android.application") }\nandroid { namespace "com.example.app"; compileSdk 34; defaultConfig { applicationId "com.example.app"; minSdk 24; targetSdk 34; versionCode 1; versionName "1.0" } }\ndependencies { implementation "androidx.appcompat:appcompat:1.6.1" }\n' > app/build.gradle
-          printf '<?xml version="1.0"?><manifest xmlns:android="http://schemas.android.com/apk/res/android"><uses-permission android:name="android.permission.INTERNET"/><application android:label="SmartWardrobe" android:theme="@style/Theme.AppCompat.Light.NoActionBar"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>\n' > app/src/main/AndroidManifest.xml
-          printf 'package com.example.app;\nimport android.os.Bundle;\nimport android.webkit.WebView;\nimport androidx.appcompat.app.AppCompatActivity;\npublic class MainActivity extends AppCompatActivity {\n    WebView wv;\n    @Override protected void onCreate(Bundle b) {\n        super.onCreate(b);\n        wv = new WebView(this);\n        wv.getSettings().setJavaScriptEnabled(true);\n        wv.getSettings().setDomStorageEnabled(true);\n        wv.loadUrl("https://qing2317.github.io/smart-wardrobe/");\n        setContentView(wv);\n    }\n    @Override public void onBackPressed() {\n        if (wv.canGoBack()) wv.goBack(); else super.onBackPressed();\n    }\n}\n' > app/src/main/java/com/example/app/MainActivity.java
+          
+          # App build.gradle WITH signing config
+          cat > app/build.gradle << 'X'
+plugins { id("com.android.application") }
+android {
+    namespace "com.example.app"
+    compileSdk 34
+    signingConfigs {
+        release {
+            storeFile file("keystore.jks")
+            storePassword "android"
+            keyAlias "release"
+            keyPassword "android"
+        }
+    }
+    defaultConfig {
+        applicationId "com.example.app"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
+}
+dependencies { implementation "androidx.appcompat:appcompat:1.6.1" }
+X
+          echo '<?xml version="1.0"?><manifest xmlns:android="http://schemas.android.com/apk/res/android"><uses-permission android:name="android.permission.INTERNET"/><application android:label="SmartWardrobe" android:theme="@style/Theme.AppCompat.Light.NoActionBar"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>' > app/src/main/AndroidManifest.xml
+          echo 'package com.example.app; import android.os.Bundle; import android.webkit.WebView; import androidx.appcompat.app.AppCompatActivity; public class MainActivity extends AppCompatActivity { WebView wv; @Override protected void onCreate(Bundle b) { super.onCreate(b); wv = new WebView(this); wv.getSettings().setJavaScriptEnabled(true); wv.getSettings().setDomStorageEnabled(true); wv.loadUrl("https://qing2317.github.io/smart-wardrobe/"); setContentView(wv); } @Override public void onBackPressed() { if (wv.canGoBack()) wv.goBack(); else super.onBackPressed(); } }' > app/src/main/java/com/example/app/MainActivity.java
+          
+          # Build signed APK
           ./gradle-8.5/bin/gradle wrapper --gradle-version 8.5
-          ./gradlew assembleRelease 2>&1
+          ./gradlew assembleRelease
+          
+          # Find APK
           find . -name "*.apk" -type f
       - uses: actions/upload-artifact@v4
         with:
