@@ -9,13 +9,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Build APK using pwabuilder
+      - name: Install APK tool
+        run: npm install -g @pwabuilder/cli 2>&1 | tail -5
+      - name: Build APK
         run: |
-          which java && java -version 2>&1
-          yes | npx pwabuilder package https://qing2317.github.io/smart-wardrobe/ --android 2>&1 || true
-          echo "=== Looking for APK ==="
+          which java && java -version 2>&1 || echo "no java"
+          yes | pwa package https://qing2317.github.io/smart-wardrobe/ --android 2>&1 || echo "CMD1 failed"
+      - name: Find APK
+        run: |
           find / -name "*.apk" -type f 2>/dev/null | head -20
-          echo "=== End of search ==="
+          echo "---"
+          find . -name "*.apk" -type f 2>/dev/null | head -20
+          echo "---"
+          find /home -name "*.apk" -type f 2>/dev/null | head -20
       - uses: actions/upload-artifact@v4
         with:
           name: smart-wardrobe-apk
