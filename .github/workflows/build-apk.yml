@@ -9,16 +9,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Build APK
+      - name: Build APK using pwabuilder
         run: |
-          rm -f app.keystore
-          echo "y" | keytool -genkey -v -keystore app.keystore -alias pwa -keyalg RSA -keysize 2048 -validity 10000 -storepass password -keypass password -dname "CN=PWA,OU=PWA,O=PWA,L=City,S=State,C=CN" 2>&1
-          yes "" | npx @bubblewrap/cli init --manifest=https://qing2317.github.io/smart-wardrobe/manifest.json --directory=./android --signingKey=app.keystore --signingKeyAlias=pwa --signingKeyPassword=password --acceptJdk 2>&1
-          yes "" | npx @bubblewrap/cli build --directory=./android 2>&1 || true
-          find ./android -name "*.apk" -exec cp {} ./smart-wardrobe.apk \; 2>/dev/null || true
-          ls -la *.apk 2>/dev/null
-          echo "APK size: $(stat -c%s smart-wardrobe.apk 2>/dev/null || echo 0) bytes"
+          which java && java -version 2>&1
+          yes | npx pwabuilder package https://qing2317.github.io/smart-wardrobe/ --android 2>&1 || true
+          echo "=== Looking for APK ==="
+          find / -name "*.apk" -type f 2>/dev/null | head -20
+          echo "=== End of search ==="
       - uses: actions/upload-artifact@v4
         with:
           name: smart-wardrobe-apk
-          path: smart-wardrobe.apk
+          path: |
+            *.apk
+            **/*.apk
