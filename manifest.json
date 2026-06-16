@@ -1,14 +1,16 @@
-﻿{
+{
   "name": "智能衣橱",
   "short_name": "衣橱",
-  "description": "管理你的个人衣物，搭配推荐",
+  "description": "智能管理你的个人衣物，轻松搭配推荐",
   "start_url": "index.html",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#f5f5f5",
+  "theme_color": "#007aff",
   "orientation": "portrait-primary",
+  "categories": ["lifestyle", "fashion"],
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
   ]
 }
