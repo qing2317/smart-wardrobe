@@ -10,7 +10,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Build Signed APK
+      - name: Build
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
@@ -18,30 +18,18 @@ jobs:
           wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip -O gradle.zip
           unzip -q gradle.zip
           mkdir -p app/src/main/java/com/example/app app/src/main/res/values
-          printf 'pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }\ndependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }\nrootProject.name = "MyApp"\ninclude(":app")\n' > settings.gradle
-          printf 'plugins { id("com.android.application") version "8.2.0" apply false }\n' > build.gradle
-          printf 'android.useAndroidX=true\norg.gradle.jvmargs=-Xmx2g\n' > gradle.properties
-          printf 'plugins { id("com.android.application") }\nandroid { namespace "com.example.app"; compileSdk 34; defaultConfig { applicationId "com.example.app"; minSdk 24; targetSdk 34; versionCode 1; versionName "1.0" } }\ndependencies { implementation "androidx.appcompat:appcompat:1.6.1" }\n' > app/build.gradle
-          printf '<?xml version="1.0"?><manifest xmlns:android="http://schemas.android.com/apk/res/android"><uses-permission android:name="android.permission.INTERNET"/><application android:label="SmartWardrobe" android:theme="@style/Theme.AppCompat.Light.NoActionBar"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>\n' > app/src/main/AndroidManifest.xml
-          printf 'package com.example.app;\nimport android.os.Bundle;\nimport android.webkit.WebView;\nimport androidx.appcompat.app.AppCompatActivity;\npublic class MainActivity extends AppCompatActivity {\n    WebView wv;\n    @Override protected void onCreate(Bundle b) {\n        super.onCreate(b);\n        wv = new WebView(this);\n        wv.getSettings().setJavaScriptEnabled(true);\n        wv.getSettings().setDomStorageEnabled(true);\n        wv.loadUrl("https://qing2317.github.io/smart-wardrobe/");\n        setContentView(wv);\n    }\n    @Override public void onBackPressed() {\n        if (wv.canGoBack()) wv.goBack(); else super.onBackPressed();\n    }\n}\n' > app/src/main/java/com/example/app/MainActivity.java
+          echo -e 'pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }' > settings.gradle
+          echo -e 'dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }' >> settings.gradle
+          echo -e 'rootProject.name = "MyApp"\ninclude(":app")\n' >> settings.gradle
+          echo -e 'plugins { id("com.android.application") version "8.2.0" apply false }' > build.gradle
+          echo -e 'android.useAndroidX=true\norg.gradle.jvmargs=-Xmx2g' > gradle.properties
+          echo -e 'plugins { id("com.android.application") }\nandroid {\n    namespace "com.example.app"\n    compileSdk 34\n    defaultConfig {\n        applicationId "com.example.app"\n        minSdk 24\n        targetSdk 34\n        versionCode 1\n        versionName "1.0"\n    }\n}\ndependencies {\n    implementation "androidx.appcompat:appcompat:1.6.1"\n}' > app/build.gradle
+          echo -e '<?xml version="1.0"?><manifest xmlns:android="http://schemas.android.com/apk/res/android"><uses-permission android:name="android.permission.INTERNET"/><application android:label="SmartWardrobe" android:theme="@style/Theme.AppCompat.Light.NoActionBar"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>' > app/src/main/AndroidManifest.xml
+          echo -e 'package com.example.app;\n\nimport android.os.Bundle;\nimport android.webkit.WebView;\nimport androidx.appcompat.app.AppCompatActivity;\n\npublic class MainActivity extends AppCompatActivity {\n    WebView wv;\n    @Override\n    protected void onCreate(Bundle b) {\n        super.onCreate(b);\n        wv = new WebView(this);\n        wv.getSettings().setJavaScriptEnabled(true);\n        wv.getSettings().setDomStorageEnabled(true);\n        wv.loadUrl("https://qing2317.github.io/smart-wardrobe/");\n        setContentView(wv);\n    }\n    @Override\n    public void onBackPressed() {\n        if (wv.canGoBack()) wv.goBack();\n        else super.onBackPressed();\n    }\n}\n' > app/src/main/java/com/example/app/MainActivity.java
           ./gradle-8.5/bin/gradle wrapper --gradle-version 8.5
           ./gradlew assembleRelease
-          echo "=== Unsigned APK ==="
-          find . -name "app-release-unsigned.apk" -type f
-          echo "=== Creating keystore & signing ==="
-          keytool -genkey -v -keystore my.keystore -alias mykey -keyalg RSA -keysize 2048 -validity 10000 -storepass p123 -keypass p123 -dname "CN=a,OU=a,O=a,L=a,S=a,C=a"
-          UNSIGNED=$(find . -name "app-release-unsigned.apk" -type f | head -1)
-          if [ -n "$UNSIGNED" ]; then
-            cp "$UNSIGNED" app-unsigned.apk
-            $ANDROID_HOME/build-tools/34.0.0/zipalign -v -p 4 app-unsigned.apk app-aligned.apk
-            $ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks my.keystore --ks-key-alias mykey --ks-pass pass:p123 --key-pass pass:p123 --out smart-wardrobe.apk app-aligned.apk
-            echo "=== Signed APK ready ==="
-            ls -lh smart-wardrobe.apk
-          else
-            echo "No unsigned APK found!"
-            find . -name "*.apk" -type f
-          fi
+          find . -name "*.apk" -type f
       - uses: actions/upload-artifact@v4
         with:
           name: apk
-          path: smart-wardrobe.apk
+          path: app/build/outputs/apk/**/*.apk
