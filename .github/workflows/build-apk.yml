@@ -3,26 +3,34 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Setup and Build APK
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Build APK with Capacitor
+        env:
+          ANDROID_HOME: /Users/runner/Library/Android/sdk
         run: |
-          apt-get update -qq && apt-get install -y -qq expect 2>/dev/null || true
-          rm -f app.keystore
-          /usr/bin/keytool -genkey -v -keystore app.keystore -alias mykey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=App,OU=App,O=App,L=City,S=State,C=CN" 2>&1 || echo "KEYTOOL_RETRY" && sleep 1 && rm -f app.keystore && /usr/bin/keytool -genkey -v -keystore app.keystore -alias mykey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=App,OU=App,O=App,L=City,S=State,C=CN" 2>&1
-          echo "Key created. Running bubblewrap..."
-          echo -e "Y\nY\nY\n" | npx @bubblewrap/cli init --manifest=https://qing2317.github.io/smart-wardrobe/manifest.json --directory=./android --signingKey=app.keystore --signingKeyAlias=mykey --signingKeyPassword=android --acceptJdk 2>&1 || echo "INIT_ATTEMPT1_FAILED"
-          echo -e "Y\nY\nY\n" | npx @bubblewrap/cli build --directory=./android 2>&1 || echo "BUILD_FAILED"
-          echo "=== Searching for APKs ==="
-          find / -name "*.apk" -type f 2>/dev/null
-          echo "=== End of search ==="
+          echo "Init web project..."
+          echo '{"name":"SmartWardrobe","version":"1.0.0","private":true}' > package.json
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap init SmartWardrobe com.smartwardrobe.app --webDir=. --yes
+          npx cap add android
+          # Sync web assets
+          npx cap sync android
+          # Build APK
+          cd android
+          ./gradlew assembleRelease
+          echo "=== Looking for APK ==="
+          find . -name "*.apk" 2>/dev/null
       - uses: actions/upload-artifact@v4
         with:
           name: smart-wardrobe-apk
           path: |
-            *.apk
-            **/*.apk
+            android/app/build/outputs/**/*.apk
