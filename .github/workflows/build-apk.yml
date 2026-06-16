@@ -17,20 +17,26 @@ jobs:
         env:
           ANDROID_HOME: /Users/runner/Library/Android/sdk
         run: |
-          echo "Init web project..."
           echo '{"name":"SmartWardrobe","version":"1.0.0","private":true}' > package.json
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init SmartWardrobe com.smartwardrobe.app --webDir=. --yes
+          npx cap init SmartWardrobe com.smartwardrobe.app --yes
+          cat > capacitor.config.json << 'EOF'
+          {
+            "appId": "com.smartwardrobe.app",
+            "appName": "SmartWardrobe",
+            "webDir": ".",
+            "server": {
+              "url": "https://qing2317.github.io/smart-wardrobe/"
+            }
+          }
+          EOF
           npx cap add android
-          # Sync web assets
           npx cap sync android
-          # Build APK
           cd android
+          export ANDROID_HOME=/Users/runner/Library/Android/sdk
           ./gradlew assembleRelease
-          echo "=== Looking for APK ==="
-          find . -name "*.apk" 2>/dev/null
+          find . -name "*.apk" -type f
       - uses: actions/upload-artifact@v4
         with:
           name: smart-wardrobe-apk
-          path: |
-            android/app/build/outputs/**/*.apk
+          path: android/app/build/outputs/**/*.apk
